@@ -14,13 +14,7 @@ spec:
         name: bitnami
         namespace: flux-system
   values:
-    replicaCount: 1
-    #    service:
-    #  type: ClusterIP
-
+    replicaCount: 4
     service:
-      type: NodePort
-      port: 80
-      targetPort: 80
-      nodePorts:
-        http: 30080
+      type: ClusterIP
+
