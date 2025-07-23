@@ -13,3 +13,6 @@ spec:
         kind: HelmRepository
         name: bitnami
         namespace: flux-system
+  values:
+    service:
+      type: ClusterIP
