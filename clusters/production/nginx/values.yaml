@@ -1,0 +1,82 @@
+# values.yaml - Nginx Helm Chart Configuration
+replicaCount: 2
+
+image:
+  repository: nginx
+  tag: "1.25.4"  # Container image version
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+  # Optional: Uncomment for LoadBalancer
+  # externalTrafficPolicy: Local
+  # loadBalancerIP: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101  # Official Nginx user ID
+  fsGroup: 101
+
+securityContext:
+  capabilities:
+    drop: [ALL]
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  # minReplicas: 2
+  # maxReplicas: 10
+  # targetCPUUtilizationPercentage: 80
+
+ingress:
+  enabled: false
+  # className: nginx
+  # hosts:
+  #   - host: nginx.example.com
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 2
+  periodSeconds: 5
+
+## Custom configuration options
+config: |
+  # events {
+  #   worker_connections 1024;
+  # }
+  http {
+    server {
+      listen 80;
+      location /status {
+        stub_status;
+      }
+    }
+  }
+
+## Additional environment variables
+extraEnvVars:
+  - name: NGINX_ENV
+    value: production
