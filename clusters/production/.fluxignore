@@ -1,0 +1,3 @@
+# Ignore Helm chart files
+nginx/Chart.yaml
+nginx/values.yaml

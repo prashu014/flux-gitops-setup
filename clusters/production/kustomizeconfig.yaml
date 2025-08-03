@@ -1,0 +1,7 @@
+# clusters/production/kustomizeconfig.yaml
+# This tells Kustomize to only process Kubernetes manifests
+filemeta:
+  - path: "nginx/Chart.yaml"
+    ignore: true
+  - path: "nginx/values.yaml"
+    ignore: true

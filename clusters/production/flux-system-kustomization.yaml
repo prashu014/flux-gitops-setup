@@ -1,3 +1,4 @@
+# clusters/production/flux-system-kustomization.yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -10,9 +11,7 @@ spec:
     kind: GitRepository
     name: flux-system
   prune: true
-  ignore: |
-    # Exclude all directories except specific files
-    /*/
-    # Include only these files
-    !/nginx-release.yaml
-    !/flux-system-kustomization.yaml
+  # Explicitly declare resources to process
+  resources:
+  - nginx-release.yaml
+  - flux-system-kustomization.yaml

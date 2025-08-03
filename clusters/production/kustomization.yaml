@@ -1,0 +1,8 @@
+# clusters/production/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- nginx-release.yaml
+# Explicitly exclude Helm chart files
+commonAnnotations:
+  kustomize.toolkit.fluxcd.io/exclude: "true"
