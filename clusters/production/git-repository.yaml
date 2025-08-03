@@ -1,0 +1,13 @@
+# clusters/production/git-repository.yaml
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: ssh://git@github.com/prashu014/flux-gitops-setup.git  # Corrected URL format
+  ref:
+    branch: main
+  secretRef:
+    name: flux-system
