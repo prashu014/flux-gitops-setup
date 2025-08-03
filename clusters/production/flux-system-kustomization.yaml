@@ -1,4 +1,4 @@
-iapiVersion: kustomize.toolkit.fluxcd.io/v1
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: flux-system
@@ -10,3 +10,7 @@ spec:
     kind: GitRepository
     name: flux-system
   prune: true
+  ignore: |
+    /*/
+    !/nginx-release.yaml
+    !/flux-system-kustomization.yaml
