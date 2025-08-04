@@ -20,6 +20,13 @@ spec:
     remediation:
       retries: 3
   values:
+    # Add serviceAccount configuration here
+    serviceAccount:
+      create: true
+      name: nginx
+      automount: true  # Add this if missing in your template
+    
+    # Existing values
     image:
       repository: nginxinc/nginx-unprivileged
       tag: "1.25.4"
@@ -36,3 +43,13 @@ spec:
     volumeMounts:
       - name: nginx-cache
         mountPath: /var/cache/nginx
+    
+    # Add other values from clusters/production/nginx/values.yaml as needed
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
