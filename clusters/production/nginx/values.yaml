@@ -14,7 +14,7 @@ serviceAccount:
 service:
   type: ClusterIP
   port: 80
-  targetPort: 80
+  targetPort: 8080  # nginx-unprivileged listens on 8080 internally
 
 podSecurityContext:
   runAsNonRoot: true
@@ -32,7 +32,8 @@ resources:
     cpu: 100m
     memory: 128Mi
   limits:
-    memory: 256Mi
+    cpu: 500m
+    memory: 512Mi
 
 autoscaling:
   enabled: false
@@ -49,28 +50,10 @@ ingress:
   #       - path: /
   #         pathType: Prefix
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: 80
-  initialDelaySeconds: 5
-  periodSeconds: 10
-  failureThreshold: 3
-
-readinessProbe:
-  httpGet:
-    path: /
-    port: 80
-  initialDelaySeconds: 2
-  periodSeconds: 5
-
-startupProbe:
-  httpGet:
-    path: /
-    port: 80
-  initialDelaySeconds: 1
-  periodSeconds: 5
-  failureThreshold: 30
+# Disable all health probes
+livenessProbe: {}
+readinessProbe: {}
+startupProbe: {}
 
 ## Custom NGINX configuration
 config: |
@@ -80,7 +63,7 @@ config: |
 
   http {
     server {
-      listen 80 default_server;
+      listen 8080 default_server;
       location / {
         return 200 'NGINX is working!';
       }
