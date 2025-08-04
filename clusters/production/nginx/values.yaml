@@ -1,80 +1,28 @@
-replicaCount: 2
+replicaCount: 1
 
 image:
-  repository: nginxinc/nginx-unprivileged
+  repository: nginx
   tag: "1.25.4"
   pullPolicy: IfNotPresent
 
 serviceAccount:
   create: true
   name: nginx
-  automount: true
-  annotations: {}
 
 service:
   type: ClusterIP
   port: 80
-  targetPort: 8080  # nginx-unprivileged listens on 8080 internally
-
-podSecurityContext:
-  runAsNonRoot: true
-  runAsUser: 101
-  fsGroup: 101
-
-securityContext:
-  capabilities:
-    drop: [ALL]
-  readOnlyRootFilesystem: true
-  allowPrivilegeEscalation: false
+  targetPort: 80
 
 resources:
-  requests:
-    cpu: 100m
-    memory: 128Mi
   limits:
     cpu: 500m
     memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
-autoscaling:
-  enabled: false
-  # minReplicas: 2
-  # maxReplicas: 10
-  # targetCPUUtilizationPercentage: 80
-
-ingress:
-  enabled: false
-  # className: nginx
-  # hosts:
-  #   - host: nginx.example.com
-  #     paths:
-  #       - path: /
-  #         pathType: Prefix
-
-# Disable all health probes
 livenessProbe: {}
 readinessProbe: {}
 startupProbe: {}
-
-## Custom NGINX configuration
-config: |
-  events {
-    worker_connections 1024;
-  }
-
-  http {
-    server {
-      listen 8080 default_server;
-      location / {
-        return 200 'NGINX is working!';
-      }
-      location /status {
-        stub_status;
-      }
-    }
-  }
-
-## Environment variables
-extraEnvVars:
-  - name: NGINX_ENV
-    value: production
 
