@@ -1,17 +1,24 @@
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: nginx
-  namespace: default
+  namespace: flux-system
 spec:
   interval: 5m
   chart:
     spec:
-      chart: ./nginx
+      chart: ./clusters/production/nginx
       sourceRef:
         kind: GitRepository
         name: flux-system
+        namespace: flux-system
   values:
-    image:
-      repository: nginx
-      tag: "1.25.4"
+    serviceAccount:
+      create: true
+      automountServiceAccountToken: true  # Changed from 'automount: false'
+      name: "nginx-serviceaccount"  # Added explicit name
+
+    # Add podDisruptionBudget for better availability
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1

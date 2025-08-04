@@ -1,56 +1,60 @@
-# values.yaml - Nginx Helm Chart Configuration
 replicaCount: 2
 
 image:
-  repository: nginx
-  tag: "1.25.4"  # Container image version
+  repository: nginxinc/nginx-unprivileged  # Changed to non-root image
+  tag: "1.25.4"
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 80
-  targetPort: 80
-  # Optional: Uncomment for LoadBalancer
-  # externalTrafficPolicy: Local
-  # loadBalancerIP: ""
+  port: 8080
+  targetPort: 8080
 
 podSecurityContext:
   runAsNonRoot: true
-  runAsUser: 101  # Official Nginx user ID
+  runAsUser: 101
   fsGroup: 101
+  runAsGroup: 101
 
 securityContext:
   capabilities:
-    drop: [ALL]
-  readOnlyRootFilesystem: true
+    add: ["NET_BIND_SERVICE"]  # Added for port binding
+  readOnlyRootFilesystem: false
   allowPrivilegeEscalation: false
+
+volumes:
+  - name: nginx-cache
+    emptyDir: {}
+  - name: nginx-tmp
+    emptyDir: {}
+  - name: nginx-run
+    emptyDir: {}
+
+volumeMounts:
+  - name: nginx-cache
+    mountPath: /var/cache/nginx
+  - name: nginx-tmp
+    mountPath: /tmp
+  - name: nginx-run
+    mountPath: /var/run
 
 resources:
   requests:
     cpu: 100m
     memory: 128Mi
   limits:
-    memory: 256Mi
+    memory: 512Mi
 
 autoscaling:
   enabled: false
-  # minReplicas: 2
-  # maxReplicas: 10
-  # targetCPUUtilizationPercentage: 80
 
 ingress:
   enabled: false
-  # className: nginx
-  # hosts:
-  #   - host: nginx.example.com
-  #     paths:
-  #       - path: /
-  #         pathType: Prefix
 
 livenessProbe:
   httpGet:
     path: /
-    port: 80
+    port: 8080
   initialDelaySeconds: 5
   periodSeconds: 10
   failureThreshold: 3
@@ -58,25 +62,42 @@ livenessProbe:
 readinessProbe:
   httpGet:
     path: /
-    port: 80
+    port: 8080
   initialDelaySeconds: 2
   periodSeconds: 5
 
-## Custom configuration options
 config: |
-  # events {
-  #   worker_connections 1024;
-  # }
+  user nginx;
+  worker_processes auto;
+  error_log /dev/stderr warn;
+  pid /var/run/nginx.pid;
+
+  events {
+    worker_connections 1024;
+  }
+
   http {
     server {
-      listen 80;
+      listen 8080;
+      server_name _;
+      
+      access_log /dev/stdout;
+      
+      location / {
+        root /usr/share/nginx/html;
+      }
+      
       location /status {
         stub_status;
       }
     }
   }
 
-## Additional environment variables
 extraEnvVars:
   - name: NGINX_ENV
     value: production
+
+# Add pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
